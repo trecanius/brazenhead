@@ -1,0 +1,10 @@
+/*
+/*/
+
+!.gitignore
+!/Assets/
+!/Packages/
+!/ProjectSettings/
+
+Assets/AdressableAssetData/Windows/
+Assets/AdressableAssetData/Windows.meta
