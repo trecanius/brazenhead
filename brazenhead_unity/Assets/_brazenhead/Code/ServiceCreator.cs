@@ -6,6 +6,8 @@ namespace brazenhead.Core
     {
         internal static async void Initialize()
         {
+            Game.Locator.Bind<SettingsSystem>().To(new());
+
             var assetSystem = new AssetSystem();
             Game.Locator.Bind<AssetSystem>().To(assetSystem);
 

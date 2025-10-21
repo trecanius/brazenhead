@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace brazenhead
 {
-    public class AssetSystem
+    internal class AssetSystem
     {
         public AssetCatalog Catalog { get; private set; }
 
