@@ -10,15 +10,23 @@ namespace brazenhead
     {
         private readonly Dictionary<string, string> _valueByKey = new();
         //private readonly Dictionary<string, List<string>> _keysBySection = new();
+        private bool _isDirty;
 
         internal bool HasValue(in string key) => _valueByKey.ContainsKey(key);
 
         internal string GetValue(in string key, in string defaultValue = "") => _valueByKey.TryGetValue(key, out string value) ? value : defaultValue;
 
-        internal string SetValue(in string key, in string value) => _valueByKey[key] = value;
+        internal string SetValue(in string key, in string value)
+        {
+            _isDirty = true;
+            return _valueByKey[key] = value;
+        }
 
         internal bool ReadFromFile(in string path)
         {
+            if (!File.Exists(path))
+                return false;
+
             try
             {
                 var lines = File.ReadAllLines(path);
@@ -60,12 +68,16 @@ namespace brazenhead
 
         internal bool WriteToFile(in string path)
         {
+            if (!_isDirty)
+                return true;
+
             var sb = new StringBuilder();
             foreach ((var key, var value) in _valueByKey)
                 sb.AppendLine($"{key}={value}");
             try
             {
                 File.WriteAllText(path, sb.ToString());
+                _isDirty = false;
                 return true;
             }
             catch (Exception e)

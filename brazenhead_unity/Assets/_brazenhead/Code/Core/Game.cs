@@ -92,7 +92,7 @@ namespace brazenhead.Core
 
         private static void OnQuitting()
         {
-            EventBus.Invoke<Quit>();
+            EventBus.Invoke<Stop>();
             Terminate();
         }
 
@@ -103,6 +103,8 @@ namespace brazenhead.Core
             public FocusChange(in bool hasFocus) => this.hasFocus = hasFocus;
         }
 
-        public readonly struct Quit { }
+        public readonly struct Start { }
+
+        public readonly struct Stop { }
     }
 }

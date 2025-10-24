@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 namespace brazenhead.Core
 {
@@ -46,7 +48,34 @@ namespace brazenhead.Core
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
 #endif
             Game.Initialize();
-            ServiceCreator.Initialize();
+
+            var assetCatalog = Resources.FindObjectsOfTypeAll<AssetCatalog>().First();
+            Game.Locator.Bind<AssetCatalog>().To(assetCatalog);
+
+            Game.Locator.Bind<ConfigManager>().To(new());
+            Game.Locator.Bind<AssetManager>().To(new());
+            Game.Locator.Bind<GraphicsManager>().To(new());
+            Game.Locator.Bind<PhysicsManager>().To(new());
+            Game.Locator.Bind<InputManager>().To(new());
+
+            Game.EventBus.Invoke<Game.Start>();
+
+            // load main scene
+            var assetSystem = Game.Locator.Resolve<AssetManager>();
+            await assetSystem.LoadScene(assetCatalog.Addressable.Scenes.Main);
+
+            // instantiate camera
+            var camera = Instantiate(assetCatalog.Prefab.Camera);
+            Game.Locator.Bind<Camera>(Ids.Main).To(camera);
+
+            // instantiate player
+            var player = Instantiate(assetCatalog.Prefab.PlayerEntity);
+            Game.Locator.Bind<PlayerEntity>().To(player);
+
+            // bind camera to player
+            camera.transform.SetParent(player.CameraHolder, false);
+
+            player.Initialize();
         }
     }
 }

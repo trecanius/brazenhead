@@ -15,11 +15,6 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: b8912a8654f81364c89a109a46a4ec1f
   m_SerializeEntries:
-  - m_GUID: 95201db681e66b842bc0abcff9aab59c
-    m_Address: AssetCatalog
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ecd1577ee06bdde4fa1c522408fd804b
     m_Address: Scene_Main
     m_ReadOnly: 0

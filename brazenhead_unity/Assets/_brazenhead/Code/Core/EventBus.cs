@@ -12,7 +12,7 @@ namespace brazenhead.Core
 
         public void Invoke<T>(in T eventArgs)
         {
-            if (_listenersByType.TryGetValue(typeof(T), out var listeners) && listeners.Count == 0)
+            if (_listenersByType.TryGetValue(typeof(T), out var listeners) && listeners.Count != 0)
                 foreach (var listener in listeners.Cast<IListener<T>>())
                     listener.OnEvent(eventArgs);
         }

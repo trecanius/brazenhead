@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace brazenhead
 {
-    internal class System_Physics : ITickable<System_Physics.ILoop>
+    internal class PhysicsManager : ITickable<PhysicsManager.ILoop>
     {
         private const float SimulateInterval = 1f / 30f;
 
-        internal System_Physics()
+        internal PhysicsManager()
         {
             Physics.simulationMode = SimulationMode.Script;
 

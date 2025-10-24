@@ -25,6 +25,20 @@ namespace brazenhead.Core
             return instanceByKey[key ?? _defaultKey] as T;
         }
 
+        public bool TryResolve<T>(out T value) where T : class
+        {
+            bool result = _resolveMap.TryGetValue(typeof(T), out var instanceByKey);
+            value = result ? instanceByKey[_defaultKey] as T : default;
+            return result;
+        }
+
+        public bool TryResolve<T>(in object key, out T value) where T : class
+        {
+            bool result = _resolveMap.TryGetValue(typeof(T), out var instanceByKey);
+            value = result ? instanceByKey[key ?? _defaultKey] as T : default;
+            return result;
+        }
+
         public void GetInstancesOfType<T>(in IList<T> list) where T : class
         {
             foreach (var instanceByKey in _resolveMap.Values)

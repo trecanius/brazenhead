@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace brazenhead
 {
-    internal class System_Rendering
+    internal class GraphicsManager : IListener<Game.Start>
     {
-        internal System_Rendering()
+        void IListener<Game.Start>.OnEvent(in Game.Start param)
         {
-            var settings = Game.Locator.Resolve<System_Config>().Elements;
+            var configSettings = Game.Locator.Resolve<ConfigSettings>();
 
-            settings.MaxFPS.ValueSet += OnMaxFPSValueSet;
-            OnMaxFPSValueSet(settings.MaxFPS.GetValue());
+            configSettings.MaxFPS.ValueSet += OnMaxFPSValueSet;
+            OnMaxFPSValueSet(configSettings.MaxFPS.GetValue());
         }
 
         private void OnMaxFPSValueSet(in int value)

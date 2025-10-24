@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 883f356a5aad05148a586ec606fe48a2, type: 3}
   m_Name: AssetCatalog
   m_EditorClassIdentifier: Assembly-CSharp::brazenhead.AssetCatalog
-  <Scenes>k__BackingField:
-    <Main>k__BackingField:
-      m_AssetGUID: ecd1577ee06bdde4fa1c522408fd804b
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 1
+  <Prefab>k__BackingField:
+    <Camera>k__BackingField: {fileID: 4639924054197013047, guid: 1b89212c8c93b4c4f8dac50a78a9068b, type: 3}
+    <PlayerEntity>k__BackingField: {fileID: 7939570364043134202, guid: 06887e431a284df459d85afa62e61187, type: 3}
+  <Addressable>k__BackingField:
+    <Scenes>k__BackingField:
+      <Main>k__BackingField:
+        m_AssetGUID: ecd1577ee06bdde4fa1c522408fd804b
+        m_SubObjectName: 
+        m_SubObjectType: 
+        m_SubObjectGUID: 
+        m_EditorAssetChanged: 0
