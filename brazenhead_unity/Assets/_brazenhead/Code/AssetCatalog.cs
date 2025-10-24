@@ -4,14 +4,14 @@ using UnityEngine;
 namespace brazenhead
 {
     [CreateAssetMenu(fileName = "AssetCatalog", menuName = "brazenhead/AssetCatalog")]
-    public class AssetCatalog : ScriptableObject
+    internal class AssetCatalog : ScriptableObject
     {
-        [field: SerializeField] public SceneRefs Scenes { get; private set; }
+        [field: SerializeField] internal SceneRefs Scenes { get; private set; }
 
         [Serializable]
-        public class SceneRefs
+        internal class SceneRefs
         {
-            [field: SerializeField] public AssetReferenceScene Main { get; private set; }
+            [field: SerializeField] internal AssetReferenceScene Main { get; private set; }
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace brazenhead
 {
-    internal class SettingsData
+    internal class ConfigData
     {
         private readonly Dictionary<string, string> _valueByKey = new();
         //private readonly Dictionary<string, List<string>> _keysBySection = new();

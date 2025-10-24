@@ -1,11 +1,11 @@
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 [System.Serializable]
-public class AssetReferenceScene : AssetReference
+internal class AssetReferenceScene : AssetReference
 {
-    public AssetReferenceScene(string guid) : base(guid)
+    internal AssetReferenceScene(in string guid) : base(guid)
     {
     }
 

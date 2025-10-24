@@ -5,11 +5,11 @@ using UnityEngine.SceneManagement;
 
 namespace brazenhead
 {
-    internal class AssetSystem
+    internal class System_Assets
     {
-        public AssetCatalog Catalog { get; private set; }
+        internal AssetCatalog Catalog { get; private set; }
 
-        public async Awaitable LoadAssetCatalog()
+        internal async Awaitable LoadAssetCatalog()
         {
             Debug.Log($"Loading AssetCatalog");
             var handle = Addressables.LoadAssetAsync<AssetCatalog>(nameof(AssetCatalog));
@@ -18,7 +18,7 @@ namespace brazenhead
             Catalog = handle.Result;
         }
 
-        public async Awaitable LoadScene(AssetReferenceScene sceneRef)
+        internal async Awaitable LoadScene(AssetReferenceScene sceneRef)
         {
             Debug.Log($"Loading Scene '{sceneRef.AssetGUID}'");
             var handle = Addressables.LoadSceneAsync(sceneRef, LoadSceneMode.Single);

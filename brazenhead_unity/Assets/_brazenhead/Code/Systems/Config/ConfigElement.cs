@@ -2,16 +2,16 @@ using System.Globalization;
 
 namespace brazenhead
 {
-    internal abstract class Setting<T>
+    internal abstract class ConfigElement<T>
     {
-        private protected readonly SettingsData data;
+        private protected readonly ConfigData data;
         private protected readonly string key;
         private protected readonly T defaultValue;
 
         internal delegate void SettingEventHandler(in T value);
         internal event SettingEventHandler ValueSet;
 
-        internal Setting(in SettingsData data, in string key, in T defaultValue)
+        internal ConfigElement(in ConfigData data, in string key, in T defaultValue)
         {
             this.data = data;
             this.key = key;
@@ -34,36 +34,36 @@ namespace brazenhead
         private protected abstract void SetTypedValue(in T value);
     }
 
-    internal class StringSetting : Setting<string>
+    internal class ConfigElement_String : ConfigElement<string>
     {
-        internal StringSetting(in SettingsData data, in string key, in string defaultValue) : base(data, key, defaultValue) { }
+        internal ConfigElement_String(in ConfigData data, in string key, in string defaultValue) : base(data, key, defaultValue) { }
 
         private protected override string GetTypedValue() => data.GetValue(key, defaultValue);
 
         private protected override void SetTypedValue(in string value) => data.SetValue(key, value);
     }
 
-    internal class BoolSetting : Setting<bool>
+    internal class ConfigElement_Bool : ConfigElement<bool>
     {
-        internal BoolSetting(in SettingsData data, in string key, in bool defaultValue) : base(data, key, defaultValue) { }
+        internal ConfigElement_Bool(in ConfigData data, in string key, in bool defaultValue) : base(data, key, defaultValue) { }
 
         private protected override bool GetTypedValue() => bool.TryParse(data.GetValue(key), out var value) ? value : defaultValue;
 
         private protected override void SetTypedValue(in bool value) => data.SetValue(key, value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
     }
 
-    internal class IntSetting : Setting<int>
+    internal class ConfigElement_Int : ConfigElement<int>
     {
-        internal IntSetting(in SettingsData data, in string key, in int defaultValue) : base(data, key, defaultValue) { }
+        internal ConfigElement_Int(in ConfigData data, in string key, in int defaultValue) : base(data, key, defaultValue) { }
 
         private protected override int GetTypedValue() => int.TryParse(data.GetValue(key), NumberStyles.Any, CultureInfo.InvariantCulture, out var value) ? value : defaultValue;
 
         private protected override void SetTypedValue(in int value) => data.SetValue(key, value.ToString(CultureInfo.InvariantCulture));
     }
 
-    internal class FloatSetting : Setting<float>
+    internal class ConfigElement_Float : ConfigElement<float>
     {
-        internal FloatSetting(in SettingsData data, in string key, in float defaultValue) : base(data, key, defaultValue) { }
+        internal ConfigElement_Float(in ConfigData data, in string key, in float defaultValue) : base(data, key, defaultValue) { }
 
         private protected override float GetTypedValue() => float.TryParse(data.GetValue(key), NumberStyles.Any, CultureInfo.InvariantCulture, out var value) ? value : defaultValue;
 
