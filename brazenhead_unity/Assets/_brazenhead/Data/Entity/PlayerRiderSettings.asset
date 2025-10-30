@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54d7d2f91b05f284d9587e4f2cb01f7e, type: 3}
-  m_Name: PlayerMovementSettings
+  m_Name: PlayerRiderSettings
   m_EditorClassIdentifier: Assembly-CSharp::brazenhead.GameEntityMovementSettings
   <Speed>k__BackingField: 5

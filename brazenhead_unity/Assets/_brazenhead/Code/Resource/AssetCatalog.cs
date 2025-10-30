@@ -13,7 +13,7 @@ namespace brazenhead
         internal class PrefabRefs
         {
             [field: SerializeField] internal Camera Camera { get; private set; }
-            [field: SerializeField] internal PlayerEntity PlayerEntity { get; private set; }
+            [field: SerializeField] internal EntitySceneObject PlayerEntity { get; private set; }
         }
 
         [Serializable]

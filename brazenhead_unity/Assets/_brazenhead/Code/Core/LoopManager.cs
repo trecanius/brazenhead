@@ -9,7 +9,7 @@ namespace brazenhead.Core
     {
         private Dictionary<Type, Loop> _loopByType = new();
 
-        public Loop<T> AddLoop<T>(in float tickInterval = 0f, in int executionOrder = 0)
+        public Loop<T> Add<T>(in float tickInterval = 0f, in int executionOrder = 0)
         {
             var loop = new Loop<T>(executionOrder, tickInterval);
             _loopByType.Add(typeof(T), loop);
@@ -17,9 +17,25 @@ namespace brazenhead.Core
             return loop;
         }
 
-        public void RemoveLoop<T>() => _loopByType.Remove(typeof(T));
+        public void Remove<T>() => _loopByType.Remove(typeof(T));
 
-        public Loop<T> GetLoop<T>() => _loopByType[typeof(T)] as Loop<T>;
+        public Loop<T> Get<T>() => _loopByType[typeof(T)] as Loop<T>;
+
+        public bool TryAddTickable<T>(in ITickable<T> tickable, in int executionOrder = 0)
+        {
+            bool result;
+            if (result = _loopByType.TryGetValue(typeof(T), out var loop))
+                (loop as Loop<T>).AddTickable(tickable, executionOrder);
+            return result;
+        }
+
+        public bool TryRemoveTickable<T>(in ITickable<T> tickable)
+        {
+            bool result;
+            if (result = _loopByType.TryGetValue(typeof(T), out var loop))
+                (loop as Loop<T>).RemoveTickable(tickable);
+            return result;
+        }
 
         internal void OnUpdate(in float deltaTime)
         {
@@ -30,7 +46,7 @@ namespace brazenhead.Core
         public abstract class Loop
         {
             internal readonly int executionOrder;
-            private protected readonly float tickInterval;
+            private protected float tickInterval;
             private float _accumulator;
 
             internal Loop(in int executionOrder, in float tickInterval)
@@ -38,6 +54,8 @@ namespace brazenhead.Core
                 this.executionOrder = executionOrder;
                 this.tickInterval = tickInterval;
             }
+
+            public void SetTickInterval(float tickInterval) => this.tickInterval = tickInterval;
 
             internal void OnUpdate(in float deltaTime)
             {

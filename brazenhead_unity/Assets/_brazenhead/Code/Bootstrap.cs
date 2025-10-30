@@ -1,8 +1,9 @@
+using brazenhead.Impl;
 using System;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 namespace brazenhead.Core
 {
@@ -49,33 +50,35 @@ namespace brazenhead.Core
 #endif
             Game.Initialize();
 
-            var assetCatalog = Resources.FindObjectsOfTypeAll<AssetCatalog>().First();
+            var assetCatalog =
+#if UNITY_EDITOR
+                PlayerSettings.GetPreloadedAssets().Where(x => x is AssetCatalog).First() as AssetCatalog;
+#else
+                Resources.FindObjectsOfTypeAll<AssetCatalog>().First();
+#endif
             Game.Locator.Bind<AssetCatalog>().To(assetCatalog);
 
-            Game.Locator.Bind<ConfigManager>().To(new());
             Game.Locator.Bind<AssetManager>().To(new());
+            Game.Locator.Bind<ConfigManager>().To(new FileConfigManager());
             Game.Locator.Bind<GraphicsManager>().To(new());
-            Game.Locator.Bind<PhysicsManager>().To(new());
-            Game.Locator.Bind<InputManager>().To(new());
+            Game.Locator.Bind<InputManager>().To(new UnityInputManager());
+            Game.Locator.Bind<PhysicsManager>().To(new PhysicsManager());
 
             Game.EventBus.Invoke<Game.Start>();
 
             // load main scene
-            var assetSystem = Game.Locator.Resolve<AssetManager>();
-            await assetSystem.LoadScene(assetCatalog.Addressable.Scenes.Main);
+            await Game.Locator.Resolve<AssetManager>().LoadScene(assetCatalog.Addressable.Scenes.Main);
 
             // instantiate camera
             var camera = Instantiate(assetCatalog.Prefab.Camera);
             Game.Locator.Bind<Camera>(Ids.Main).To(camera);
 
             // instantiate player
-            var player = Instantiate(assetCatalog.Prefab.PlayerEntity);
+            var player = new PlayerEntity(Instantiate(assetCatalog.Prefab.PlayerEntity));
             Game.Locator.Bind<PlayerEntity>().To(player);
 
             // bind camera to player
             camera.transform.SetParent(player.CameraHolder, false);
-
-            player.Initialize();
         }
     }
 }

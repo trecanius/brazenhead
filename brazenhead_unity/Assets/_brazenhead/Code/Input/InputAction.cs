@@ -1,25 +1,17 @@
-using UnityEngine.InputSystem;
+using UnityEngine;
 
 namespace brazenhead
 {
-    internal class InputAction<T> where T : struct
+    internal abstract class InputAction<T> where T : struct
     {
-        private readonly InputAction _action;
-
-        internal delegate void InputEventHandler(in T value);
-        internal event InputEventHandler Performed;
-
-        internal InputAction(InputAction action)
+        internal enum State
         {
-            _action = action;
-            action.performed += OnActionPerformed;
+            Started,
+            Performed,
+            Canceled
         }
 
-        internal T GetValue() => _action.ReadValue<T>();
-
-        private void OnActionPerformed(InputAction.CallbackContext context)
-        {
-            Performed?.Invoke(context.ReadValue<T>());
-        }
+        internal delegate void InputEventHandler(State state, T value = default);
+        internal abstract event InputEventHandler StateChanged;
     }
 }

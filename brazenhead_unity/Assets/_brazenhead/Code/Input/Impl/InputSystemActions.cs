@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-namespace brazenhead
+namespace brazenhead.Impl
 {
     /// <summary>
     /// Provides programmatic access to <see cref="InputActionAsset" />, <see cref="InputActionMap" />, <see cref="InputAction" /> and <see cref="InputControlScheme" /> instances defined in asset "Assets/_brazenhead/Settings/InputSystem_Actions.inputactions".
@@ -74,7 +74,7 @@ namespace brazenhead
     /// }
     /// </code>
     /// </example>
-    public partial class @UnityInputActions: IInputActionCollection2, IDisposable
+    public partial class @InputSystemActions: IInputActionCollection2, IDisposable
     {
         /// <summary>
         /// Provides access to the underlying asset instance.
@@ -84,7 +84,7 @@ namespace brazenhead
         /// <summary>
         /// Constructs a new instance.
         /// </summary>
-        public @UnityInputActions()
+        public @InputSystemActions()
         {
             asset = InputActionAsset.FromJson(@"{
     ""version"": 1,
@@ -1039,10 +1039,10 @@ namespace brazenhead
             m_UI_ScrollWheel = m_UI.FindAction("ScrollWheel", throwIfNotFound: true);
         }
 
-        ~@UnityInputActions()
+        ~@InputSystemActions()
         {
-            UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, UnityInputActions.Player.Disable() has not been called.");
-            UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, UnityInputActions.UI.Disable() has not been called.");
+            UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystemActions.Player.Disable() has not been called.");
+            UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputSystemActions.UI.Disable() has not been called.");
         }
 
         /// <summary>
@@ -1132,12 +1132,12 @@ namespace brazenhead
         /// </summary>
         public struct PlayerActions
         {
-            private @UnityInputActions m_Wrapper;
+            private @InputSystemActions m_Wrapper;
 
             /// <summary>
             /// Construct a new instance of the input action map wrapper class.
             /// </summary>
-            public PlayerActions(@UnityInputActions wrapper) { m_Wrapper = wrapper; }
+            public PlayerActions(@InputSystemActions wrapper) { m_Wrapper = wrapper; }
             /// <summary>
             /// Provides access to the underlying input action "Player/Move".
             /// </summary>
@@ -1315,12 +1315,12 @@ namespace brazenhead
         /// </summary>
         public struct UIActions
         {
-            private @UnityInputActions m_Wrapper;
+            private @InputSystemActions m_Wrapper;
 
             /// <summary>
             /// Construct a new instance of the input action map wrapper class.
             /// </summary>
-            public UIActions(@UnityInputActions wrapper) { m_Wrapper = wrapper; }
+            public UIActions(@InputSystemActions wrapper) { m_Wrapper = wrapper; }
             /// <summary>
             /// Provides access to the underlying input action "UI/Navigate".
             /// </summary>

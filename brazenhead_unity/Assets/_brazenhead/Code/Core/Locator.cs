@@ -19,7 +19,7 @@ namespace brazenhead.Core
         {
             if (!_resolveMap.TryGetValue(typeof(T), out var instanceByKey))
             {
-                Debug.LogError($"{nameof(Locator)}: Failed to resolve type '{typeof(T).Name}' to an instance type");
+                Debug.LogError($"Failed to resolve type '{typeof(T).Name}' to an instance type!");
                 return null;
             }
             return instanceByKey[key ?? _defaultKey] as T;
@@ -72,7 +72,7 @@ namespace brazenhead.Core
             {
                 if (instance == null)
                 {
-                    Debug.LogError($"{nameof(Locator)}: Tried to bind null instance");
+                    Debug.LogError("Tried to bind null instance!");
                     return;
                 }
                 _registry?.Bind(typeof(T), _key, instance);
