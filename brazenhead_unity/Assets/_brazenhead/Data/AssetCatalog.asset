@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 883f356a5aad05148a586ec606fe48a2, type: 3}
   m_Name: AssetCatalog
   m_EditorClassIdentifier: Assembly-CSharp::brazenhead.AssetCatalog
+  <Materials>k__BackingField:
+    <DebugLine>k__BackingField: {fileID: 2100000, guid: 19360d9b2f08914478279ac040d89678, type: 2}
   <Prefab>k__BackingField:
     <Camera>k__BackingField: {fileID: 4639924054197013047, guid: 1b89212c8c93b4c4f8dac50a78a9068b, type: 3}
     <PlayerEntity>k__BackingField: {fileID: 7939570364043134202, guid: 06887e431a284df459d85afa62e61187, type: 3}

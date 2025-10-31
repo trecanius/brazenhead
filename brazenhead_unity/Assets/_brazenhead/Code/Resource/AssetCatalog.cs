@@ -6,6 +6,7 @@ namespace brazenhead
     [CreateAssetMenu(fileName = "AssetCatalog", menuName = "brazenhead/AssetCatalog")]
     internal class AssetCatalog : ScriptableObject
     {
+        [field: SerializeField] internal MaterialRefs Materials { get; private set; }
         [field: SerializeField] internal PrefabRefs Prefab { get; private set; }
         [field: SerializeField] internal AddressableRefs Addressable { get; private set; }
 
@@ -26,6 +27,12 @@ namespace brazenhead
             {
                 [field: SerializeField] internal AssetReferenceScene Main { get; private set; }
             }
+        }
+
+        [Serializable]
+        internal class MaterialRefs
+        {
+            [field: SerializeField] internal Material DebugLine { get; private set; }
         }
     }
 }

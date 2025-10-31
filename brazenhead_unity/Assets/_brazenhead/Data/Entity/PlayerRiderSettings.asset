@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54d7d2f91b05f284d9587e4f2cb01f7e, type: 3}
   m_Name: PlayerRiderSettings
   m_EditorClassIdentifier: Assembly-CSharp::brazenhead.GameEntityMovementSettings
+  <RayLength>k__BackingField: 5
+  <RestHeight>k__BackingField: 5
+  <SpringStrength>k__BackingField: 5
+  <SpringDamper>k__BackingField: 5
   <Speed>k__BackingField: 5

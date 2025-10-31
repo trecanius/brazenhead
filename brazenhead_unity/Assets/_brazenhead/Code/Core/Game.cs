@@ -96,15 +96,22 @@ namespace brazenhead.Core
             Terminate();
         }
 
-        public readonly struct FocusChange
+        public readonly struct FocusChange : IEvent
         {
             public readonly bool hasFocus;
+            bool IEvent.IsInitEvent => false;
 
             public FocusChange(in bool hasFocus) => this.hasFocus = hasFocus;
         }
 
-        public readonly struct Start { }
+        public readonly struct Start : IEvent
+        {
+            bool IEvent.IsInitEvent => true;
+        }
 
-        public readonly struct Stop { }
+        public readonly struct Stop : IEvent
+        {
+            bool IEvent.IsInitEvent => false;
+        }
     }
 }

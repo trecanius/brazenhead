@@ -68,14 +68,15 @@ namespace brazenhead.Core
                 _key = key;
             }
 
-            public readonly void To(in T instance)
+            public readonly T To(in T instance)
             {
                 if (instance == null)
                 {
                     Debug.LogError("Tried to bind null instance!");
-                    return;
+                    return default;
                 }
                 _registry?.Bind(typeof(T), _key, instance);
+                return instance;
             }
         }
     }

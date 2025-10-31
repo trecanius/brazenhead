@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace brazenhead
+namespace brazenhead.Editor
 {
     internal static class SelectionTools
     {

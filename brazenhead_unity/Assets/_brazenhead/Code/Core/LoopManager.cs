@@ -21,22 +21,6 @@ namespace brazenhead.Core
 
         public Loop<T> Get<T>() => _loopByType[typeof(T)] as Loop<T>;
 
-        public bool TryAddTickable<T>(in ITickable<T> tickable, in int executionOrder = 0)
-        {
-            bool result;
-            if (result = _loopByType.TryGetValue(typeof(T), out var loop))
-                (loop as Loop<T>).AddTickable(tickable, executionOrder);
-            return result;
-        }
-
-        public bool TryRemoveTickable<T>(in ITickable<T> tickable)
-        {
-            bool result;
-            if (result = _loopByType.TryGetValue(typeof(T), out var loop))
-                (loop as Loop<T>).RemoveTickable(tickable);
-            return result;
-        }
-
         internal void OnUpdate(in float deltaTime)
         {
             foreach (var loop in _loopByType.Values)
@@ -46,34 +30,33 @@ namespace brazenhead.Core
         public abstract class Loop
         {
             internal readonly int executionOrder;
-            private protected float tickInterval;
+            private float _timestep;
             private float _accumulator;
 
-            internal Loop(in int executionOrder, in float tickInterval)
+            internal Loop(in int executionOrder, in float timestep)
             {
                 this.executionOrder = executionOrder;
-                this.tickInterval = tickInterval;
+                _timestep = timestep;
             }
 
-            public void SetTickInterval(float tickInterval) => this.tickInterval = tickInterval;
+            public void SetTimestep(float timestep) => _timestep = timestep;
 
             internal void OnUpdate(in float deltaTime)
             {
-                if (tickInterval <= 0f)
+                if (_timestep <= 0f)
                 {
                     Tick(deltaTime);
                     return;
                 }
                 _accumulator += deltaTime;
-                while (_accumulator >= tickInterval)
+                while (_accumulator >= _timestep)
                 {
-                    float alpha = Mathf.Clamp01(_accumulator / tickInterval);
-                    _accumulator -= tickInterval;
-                    Tick(tickInterval, alpha);
+                    _accumulator -= _timestep;
+                    Tick(_timestep);
                 }
             }
 
-            private protected abstract void Tick(in float timeStep, in float alpha = 1f);
+            private protected abstract void Tick(in float timeStep);
         }
 
         public class Loop<T> : Loop
@@ -100,10 +83,10 @@ namespace brazenhead.Core
                     }
             }
 
-            private protected override void Tick(in float deltaTime, in float alpha)
+            private protected override void Tick(in float deltaTime)
             {
                 foreach (var (_, tickable) in _tickables)
-                    tickable.OnTick(deltaTime, alpha);
+                    tickable.OnTick(deltaTime);
             }
         }
     }

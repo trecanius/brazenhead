@@ -1,29 +1,40 @@
 using UnityEngine;
-using brazenhead.Core;
 
 namespace brazenhead
 {
-    internal class Rider : MonoBehaviour, ITickable<PhysicsManager.ILoop>
+    internal class Rider : MonoBehaviour, PhysicsManager.ITickable
     {
         [SerializeField] private GameEntityRiderSettings _settings;
         [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private CapsuleCollider _collider;
 
-        protected async void OnEnable()
+        private Vector3 _velocity;
+
+        void PhysicsManager.ITickable.OnPhysicsTick(in float deltaTime)
         {
-            while (!Game.Loops.TryAddTickable(this))
-                await Awaitable.NextFrameAsync();
+            var transform = _rigidbody.transform;
+            var downDir = -transform.up;
+            var rayDir = transform.TransformDirection(downDir);
+            var ray = new Ray(transform.position + new Vector3(0f, 1f, 0f), new Vector3(0f, -1f, 0f));
+            bool result = Physics.Raycast(ray, out var hitInfo, _settings.RayLength);
+
+            if (result)
+            {
+                var velocity = _rigidbody.linearVelocity;
+                var otherVelocity = Vector3.zero;
+                var rayDirVel = Vector3.Dot(ray.direction, velocity);
+                var otherDirVel = Vector3.Dot(ray.direction, otherVelocity);
+
+                float relVel = rayDirVel - otherDirVel;
+                float x = hitInfo.distance - _settings.RestHeight;
+                float springForce = (x * _settings.SpringStrength) - (relVel * _settings.SpringDamper);
+
+                _rigidbody.AddForce(ray.direction * springForce);
+            }
         }
 
-        protected void OnDisable()
-        {   
-
-            Game.Loops.TryRemoveTickable(this);
-        }
-
-        void ITickable<PhysicsManager.ILoop>.OnTick(in float deltaTime, in float alpha)
+        void PhysicsManager.ITickable.OnFrameTick(in float deltaTime, in float alpha)
         {
-            Debug.Log("OnTick: " + deltaTime + " - " + alpha);
         }
     }
 }

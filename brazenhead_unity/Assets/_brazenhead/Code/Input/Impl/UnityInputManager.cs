@@ -32,7 +32,7 @@ namespace brazenhead.Impl
             _actions.Dispose();
         }
 
-        void ITickable<ILoop>.OnTick(in float deltaTime, in float alpha)
+        void ITickable<ILoop>.OnTick(in float deltaTime)
         {
             InputSystem.Update();
         }
