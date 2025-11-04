@@ -1,28 +1,62 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 
-namespace brazenhead.Core
+namespace brazenhead
 {
-    public static class Game
+    public class GameSession : ScriptableObject
     {
-        public static bool IsInitialized { get; private set; }
-        public static Locator Locator { get; private set; }
-        public static EventBus EventBus { get; private set; }
-        public static LoopManager Loops { get; private set; }
+        public static GameSession Instance { get; private set; }
 
-        public static void Initialize()
+        [field: SerializeReference] public Locator Locator { get; private set; }
+        [field: SerializeReference] public EventBus EventBus { get; private set; }
+        [field: SerializeReference] public LoopManager Loops { get; private set; }
+
+        private void Awake()
         {
-            if (IsInitialized)
-                return;
-
-            Debug.Log($"Initializing Game");
-            IsInitialized = true;
             Locator = new();
             EventBus = new();
             Loops = new();
+        }
 
+        private void OnEnable()
+        {
+            Instance = this;
+            InjectUpdateLoop();
+
+            Application.focusChanged += OnApplicationFocusChanged;
+            Application.quitting += OnApplicationQuitting;
+
+#if UNITY_EDITOR
+            if (EditorApplication.isUpdating)
+                EventBus.Invoke<Start>();
+#endif
+        }
+
+        private void OnDisable()
+        {
+            RemoveUpdateLoop();
+
+            Application.focusChanged -= OnApplicationFocusChanged;
+            Application.quitting -= OnApplicationQuitting;
+
+#if UNITY_EDITOR
+            if (EditorApplication.isUpdating)
+                EventBus.Invoke<Stop>();
+#endif
+        }
+
+        private void OnDestroy()
+        {
+            Locator = null;
+            EventBus = null;
+            Loops = null;
+        }
+
+        private void InjectUpdateLoop()
+        {
             var playerLoop = PlayerLoop.GetCurrentPlayerLoop();
             for (int i = 0; i < playerLoop.subSystemList.Length; i++)
             {
@@ -32,7 +66,7 @@ namespace brazenhead.Core
                     var subSystemList = new PlayerLoopSystem[subSystem.subSystemList.Length + 1];
                     subSystemList[0] = new()
                     {
-                        type = typeof(Game),
+                        type = typeof(GameSession),
                         updateDelegate = Update
                     };
                     Array.Copy(subSystem.subSystemList, 0, subSystemList, 1, subSystem.subSystemList.Length);
@@ -42,23 +76,10 @@ namespace brazenhead.Core
                 }
             }
             PlayerLoop.SetPlayerLoop(playerLoop);
-            // TODO move these outside of Game class?
-            Application.focusChanged += OnFocusChanged;
-            Application.quitting += OnQuitting;
         }
 
-        public static void Terminate()
+        private void RemoveUpdateLoop()
         {
-            if (!IsInitialized)
-                return;
-
-            Debug.Log("Terminating Game");
-            IsInitialized = false;
-            Locator = null;
-            EventBus = null;
-            Loops = null;
-
-#if UNITY_EDITOR
             // changes to the PlayerLoop persist when exiting Play Mode (until a domain reload)
             // only remove the subsystem we added; not sure if setting the value to PlayerLoop.GetDefaultPlayerLoop might break some other Unity subsystem
             var playerLoop = PlayerLoop.GetCurrentPlayerLoop();
@@ -75,43 +96,33 @@ namespace brazenhead.Core
                 }
             }
             PlayerLoop.SetPlayerLoop(playerLoop);
-            Application.focusChanged -= OnFocusChanged;
-            Application.quitting -= OnQuitting;
-#endif
         }
 
         private static void Update()
         {
-            Loops.OnUpdate(Time.deltaTime);
+            Instance.Loops.OnUpdate(Time.deltaTime);
         }
 
-        private static void OnFocusChanged(bool hasFocus)
+        private void OnApplicationFocusChanged(bool hasFocus)
         {
             EventBus.Invoke<FocusChange>(new(hasFocus));
         }
 
-        private static void OnQuitting()
+        private void OnApplicationQuitting()
         {
-            EventBus.Invoke<Stop>();
-            Terminate();
+            EventBus.Invoke<Terminate>();
         }
 
         public readonly struct FocusChange : IEvent
         {
             public readonly bool hasFocus;
-            bool IEvent.IsInitEvent => false;
 
             public FocusChange(in bool hasFocus) => this.hasFocus = hasFocus;
         }
 
-        public readonly struct Start : IEvent
-        {
-            bool IEvent.IsInitEvent => true;
-        }
-
-        public readonly struct Stop : IEvent
-        {
-            bool IEvent.IsInitEvent => false;
-        }
+        public readonly struct Initialize : IEvent { }
+        public readonly struct Start : IEvent { }
+        public readonly struct Stop : IEvent { }
+        public readonly struct Terminate : IEvent { }
     }
 }

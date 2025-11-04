@@ -1,15 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using UnityEngine;
 
-namespace brazenhead.Impl
+namespace brazenhead
 {
+    [Serializable]
     internal class FileConfigData : ConfigData
     {
-        private readonly Dictionary<string, string> _valueByKey = new();
+        private ValueMap _valueByKey = new();
         private bool _isDirty;
 
         internal override bool TryGetValue<T>(in string key, out T value)
@@ -120,5 +120,8 @@ namespace brazenhead.Impl
                 _ => value.ToString()
             };
         }
+
+        [Serializable]
+        private class ValueMap : SerializedDictionary<string, string> { }
     }
 }

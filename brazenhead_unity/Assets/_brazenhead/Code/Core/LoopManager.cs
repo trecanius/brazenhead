@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace brazenhead.Core
+namespace brazenhead
 {
+    [Serializable]
     public class LoopManager
     {
-        private Dictionary<Type, Loop> _loopByType = new();
+        [SerializeReference] private LoopByType _loopByType = new();
 
         public Loop<T> Add<T>(in float tickInterval = 0f, in int executionOrder = 0)
         {
             var loop = new Loop<T>(executionOrder, tickInterval);
             _loopByType.Add(typeof(T), loop);
-            _loopByType = new(_loopByType.OrderBy(x => x.Value.executionOrder));
+            _loopByType = new LoopByType(_loopByType.OrderBy(x => x.Value.executionOrder));
             return loop;
         }
 
@@ -87,6 +88,18 @@ namespace brazenhead.Core
             {
                 foreach (var (_, tickable) in _tickables)
                     tickable.OnTick(deltaTime);
+            }
+        }
+
+        [Serializable]
+        private class LoopByType : SerializedReferenceDictionary<Type, Loop>
+        {
+            public LoopByType() : base()
+            {
+            }
+
+            public LoopByType(IEnumerable<KeyValuePair<Type, Loop>> collection) : base(collection)
+            {
             }
         }
     }

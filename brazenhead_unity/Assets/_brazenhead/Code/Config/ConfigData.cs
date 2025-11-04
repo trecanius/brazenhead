@@ -1,5 +1,8 @@
+using System;
+
 namespace brazenhead
 {
+    [Serializable]
     internal abstract class ConfigData
     {
         internal abstract bool TryGetValue<T>(in string key, out T value);

@@ -1,18 +1,18 @@
-using brazenhead.Core;
+using brazenhead;
 using UnityEngine;
 
 namespace brazenhead
 {
-    internal class GraphicsManager : IListener<Game.Start>
+    internal class GraphicsManager : IListener<GameSession.Start>
     {
         internal GraphicsManager()
         {
-            Game.EventBus.AddListener(this);
+            GameSession.Instance.EventBus.AddListener(this);
         }
 
-        void IListener<Game.Start>.OnEvent(in Game.Start param)
+        void IListener<GameSession.Start>.OnEvent(in GameSession.Start param)
         {
-            var settings = Game.Locator.Resolve<ConfigManager>().Settings;
+            var settings = GameSession.Instance.Locator.Resolve<ConfigManager>().Settings;
 
             settings.MaxFPS.ValueSet += OnMaxFPSValueSet;
 

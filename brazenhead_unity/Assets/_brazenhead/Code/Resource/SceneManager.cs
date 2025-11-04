@@ -6,15 +6,15 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
-using brazenhead.Core;
 
 namespace brazenhead
 {
-    internal class SceneManager
+    [Serializable]
+    internal class SceneManager : IListener<GameSession.Initialize>
     {
-        private readonly AssetCatalog _assetCatalog;
+        private AssetCatalog _assetCatalog;
 
-        internal SceneManager()
+        void IListener<GameSession.Initialize>.OnEvent(in GameSession.Initialize param)
         {
             _assetCatalog =
 #if UNITY_EDITOR
@@ -22,7 +22,6 @@ namespace brazenhead
 #else
                 Resources.FindObjectsOfTypeAll<AssetCatalog>().First();
 #endif
-            Game.Locator.Bind<AssetCatalog.MaterialRefs>().To(_assetCatalog.Materials);
         }
 
         internal async Awaitable LoadScene(Func<AssetCatalog, AssetReferenceScene> getSceneRef)

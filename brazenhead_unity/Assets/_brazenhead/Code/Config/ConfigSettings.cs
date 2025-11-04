@@ -1,11 +1,14 @@
+using System;
+
 namespace brazenhead
 {
+    [Serializable]
     internal class ConfigSettings
     {
-        internal ConfigSetting<int> MaxFPS { get; private protected set; }
-        internal ConfigSetting<bool> ShowFPS { get; private protected set; }
-        internal ConfigSetting<bool> PhysicsDebug { get; private protected set; }
-        internal ConfigSetting<float> PhysicsTickRate { get; private protected set; }
+        internal IntConfigSetting MaxFPS { get; private protected set; }
+        internal BoolConfigSetting ShowFPS { get; private protected set; }
+        internal BoolConfigSetting PhysicsDebug { get; private protected set; }
+        internal FloatConfigSetting PhysicsTickRate { get; private protected set; }
 
         internal ConfigSettings(in ConfigData configData)
         {

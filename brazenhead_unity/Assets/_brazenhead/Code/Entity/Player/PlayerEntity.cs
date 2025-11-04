@@ -1,4 +1,4 @@
-using brazenhead.Core;
+using brazenhead;
 using UnityEngine;
 
 namespace brazenhead
@@ -9,15 +9,15 @@ namespace brazenhead
 
         internal PlayerEntity(EntitySceneObject sceneObject) : base(sceneObject)
         {
-            var inputActions = Game.Locator.Resolve<InputManager>().Actions;
+            var inputActions = GameSession.Instance.Locator.Resolve<InputManager>().Actions;
             inputActions.Move.StateChanged += OnMoveInputValueChanged;
             inputActions.Attack.StateChanged += OnAttackInputValueChanged;
 
             var cameraHolder = sceneObject.transform.Find("Rider/Rigidbody/CameraHolder");
-            Game.Locator.Resolve<CameraManager>().MainCamera.transform.SetParent(cameraHolder, false);
+            GameSession.Instance.Locator.Resolve<CameraManager>().MainCamera.transform.SetParent(cameraHolder, false);
 
             _rider = sceneObject.GetComponentInChildren<Rider>();
-            Game.Locator.Resolve<PhysicsManager>().AddTickable(_rider);
+            GameSession.Instance.Locator.Resolve<PhysicsManager>().AddTickable(_rider);
         }
 
         private void OnMoveInputValueChanged(InputAction<Vector2>.State state, Vector2 value)

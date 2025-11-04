@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace brazenhead.Core
+namespace brazenhead
 {
     public interface ITerminatable
     {

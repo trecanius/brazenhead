@@ -1,6 +1,6 @@
 using UnityEngine.InputSystem;
 
-namespace brazenhead.Impl
+namespace brazenhead
 {
     internal class UnityInputAction<T> : InputAction<T> where T : struct
     {

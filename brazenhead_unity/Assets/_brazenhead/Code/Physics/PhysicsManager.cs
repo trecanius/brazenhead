@@ -1,11 +1,11 @@
-using brazenhead.Core;
+using brazenhead;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace brazenhead
 {
-    internal class PhysicsManager : IListener<Game.Start>, IListener<Game.Stop>, ITickable<PhysicsManager.ILoop>
+    internal class PhysicsManager : IListener<GameSession.Start>, IListener<GameSession.Stop>, ITickable<PhysicsManager.ILoop>
     {
         private float _timestep = 1f / 30f;
         private float _accumulator;
@@ -17,15 +17,15 @@ namespace brazenhead
         {
             Physics.simulationMode = SimulationMode.Script;
 
-            Game.EventBus.AddListener<Game.Start>(this);
-            Game.EventBus.AddListener<Game.Stop>(this);
+            GameSession.Instance.EventBus.AddListener<GameSession.Start>(this);
+            GameSession.Instance.EventBus.AddListener<GameSession.Stop>(this);
         }
 
-        void IListener<Game.Start>.OnEvent(in Game.Start param)
+        void IListener<GameSession.Start>.OnEvent(in GameSession.Start param)
         {
-            Game.Loops.Add<ILoop>(0f, -1).AddTickable(this, int.MinValue);
+            GameSession.Instance.Loops.Add<ILoop>(0f, -1).AddTickable(this, int.MinValue);
 
-            var tickRateSetting = Game.Locator.Resolve<ConfigManager>().Settings.PhysicsTickRate;
+            var tickRateSetting = GameSession.Instance.Locator.Resolve<ConfigManager>().Settings.PhysicsTickRate;
             tickRateSetting.ValueSet += OnTickRateValueSet;
             OnTickRateValueSet(tickRateSetting.GetValue());
 
@@ -34,7 +34,7 @@ namespace brazenhead
             RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
         }
 
-        void IListener<Game.Stop>.OnEvent(in Game.Stop param)
+        void IListener<GameSession.Stop>.OnEvent(in GameSession.Stop param)
         {
             RenderPipelineManager.endCameraRendering -= OnEndCameraRendering;
         }
@@ -75,7 +75,7 @@ namespace brazenhead
         {
             GL.PushMatrix();
             //GL.LoadIdentity();
-            Game.Locator.Resolve<AssetCatalog.MaterialRefs>().DebugLine.SetPass(0);
+            GameSession.Instance.Locator.Resolve<AssetCatalog.MaterialRefs>().DebugLine.SetPass(0);
             GL.Begin(GL.LINE_STRIP);
             foreach (var collider in _colliders)
             {

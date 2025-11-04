@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace brazenhead.Impl
+namespace brazenhead
 {
     internal class UnityInputActions : InputActions
     {

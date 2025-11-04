@@ -1,9 +1,10 @@
-using brazenhead.Core;
+using System;
 using UnityEngine;
 
-namespace brazenhead.Impl
+namespace brazenhead
 {
-    internal class FileConfigManager : ConfigManager, IListener<Game.Stop>
+    [Serializable]//
+    internal class FileConfigManager : ConfigManager, IListener<GameSession.Initialize>, IListener<GameSession.Start>, IListener<GameSession.Terminate>
     {
         private static readonly string _configFilePath =
 #if !UNITY_EDITOR
@@ -11,20 +12,23 @@ namespace brazenhead.Impl
 #endif
             $"brazenhead.cfg";
 
-        private readonly FileConfigData _configData = new();
+        [SerializeReference] private FileConfigData _configData = new();
 
-        internal override ConfigSettings Settings { get; }
+        [field: SerializeReference] internal override ConfigSettings Settings { get; private protected set; }
 
-        internal FileConfigManager()
+        void IListener<GameSession.Initialize>.OnEvent(in GameSession.Initialize param)
         {
             _configData.ReadFromFile(_configFilePath);
             Settings = new ConfigSettings(_configData);
             _configData.WriteToFile(_configFilePath);
-
-            Game.EventBus.AddListener(this);
         }
 
-        void IListener<Game.Stop>.OnEvent(in Game.Stop param)
+        void IListener<GameSession.Start>.OnEvent(in GameSession.Start param)
+        {
+            Debug.Log(Settings.MaxFPS.GetValue());
+        }
+
+        void IListener<GameSession.Terminate>.OnEvent(in GameSession.Terminate param)
         {
             _configData.WriteToFile(_configFilePath);
         }

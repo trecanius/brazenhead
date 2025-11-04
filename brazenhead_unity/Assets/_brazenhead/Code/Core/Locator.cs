@@ -1,21 +1,44 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace brazenhead.Core
+namespace brazenhead
 {
-    public class Locator
+    [Serializable]
+    public class Locator : ISerializationCallbackReceiver
     {
-        private static readonly object _defaultKey = new();
+        private static readonly string _defaultKey = "";
 
-        private readonly Dictionary<Type, Dictionary<object, object>> _resolveMap = new();
+        private readonly Dictionary<Type, ResolveMap> _resolveMap = new();
 
-        public Binding<T> Bind<T>(in object key = null) where T : class
+        private List<SerializedType> _resolveMapKeys = new();
+        [SerializeReference] private List<ResolveMap> _resolveMapValues = new();
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+            _resolveMapKeys.Clear();
+            _resolveMapValues.Clear();
+
+            foreach (var (key, value) in _resolveMap)
+            {
+                _resolveMapKeys.Add(new SerializedType(key));
+                _resolveMapValues.Add(value);
+            }
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
+            for (int i = 0; i < _resolveMapKeys.Count; i++)
+                _resolveMap.Add(_resolveMapKeys[i], _resolveMapValues[i]);
+        }
+
+        public Binding<T> Bind<T>(in string key = null) where T : class
         {
             return new Binding<T>(this, key ?? _defaultKey);
         }
 
-        public T Resolve<T>(in object key = null) where T : class
+        public T Resolve<T>(in string key = null) where T : class
         {
             if (!_resolveMap.TryGetValue(typeof(T), out var instanceByKey))
             {
@@ -32,11 +55,18 @@ namespace brazenhead.Core
             return result;
         }
 
-        public bool TryResolve<T>(in object key, out T value) where T : class
+        public bool TryResolve<T>(in string key, out T value) where T : class
         {
             bool result = _resolveMap.TryGetValue(typeof(T), out var instanceByKey);
             value = result ? instanceByKey[key ?? _defaultKey] as T : default;
             return result;
+        }
+
+        public List<T> GetInstancesOfType<T>() where T : class
+        {
+            var list = new List<T>();
+            GetInstancesOfType(list);
+            return list;
         }
 
         public void GetInstancesOfType<T>(in IList<T> list) where T : class
@@ -47,11 +77,11 @@ namespace brazenhead.Core
                         list.Add(typedInstance);
         }
 
-        private void Bind(in Type resolveType, in object key, in object instance)
+        private void Bind(in Type resolveType, in string key, in object instance)
         {
             if (!_resolveMap.TryGetValue(resolveType, out var instanceByKey))
             {
-                instanceByKey = new(1);
+                instanceByKey = new();
                 _resolveMap.Add(resolveType, instanceByKey);
             }
             instanceByKey[key] = instance;
@@ -60,9 +90,9 @@ namespace brazenhead.Core
         public readonly struct Binding<T> where T : class
         {
             private readonly Locator _registry;
-            private readonly object _key;
+            private readonly string _key;
 
-            public Binding(in Locator registry, in object key)
+            public Binding(in Locator registry, in string key)
             {
                 _registry = registry;
                 _key = key;
@@ -75,9 +105,12 @@ namespace brazenhead.Core
                     Debug.LogError("Tried to bind null instance!");
                     return default;
                 }
-                _registry?.Bind(typeof(T), _key, instance);
+                _registry.Bind(typeof(T), _key, instance);
                 return instance;
             }
         }
+
+        [Serializable]
+        private class ResolveMap : SerializedReferenceDictionary<string, object> { }
     }
 }

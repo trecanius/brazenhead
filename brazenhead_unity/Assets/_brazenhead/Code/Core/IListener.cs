@@ -1,6 +1,8 @@
-﻿namespace brazenhead.Core
+﻿namespace brazenhead
 {
-    public interface IListener<T> where T : IEvent
+    public interface IListener { }
+
+    public interface IListener<T> : IListener where T : IEvent
     {
         void OnEvent(in T param);
     }

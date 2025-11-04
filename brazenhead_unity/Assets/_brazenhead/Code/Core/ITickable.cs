@@ -1,4 +1,4 @@
-﻿namespace brazenhead.Core
+﻿namespace brazenhead
 {
     public interface ITickable<T>
     {
