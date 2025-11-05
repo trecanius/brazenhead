@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace brazenhead
 {
-    [Serializable]//
-    internal class FileConfigManager : ConfigManager, IListener<GameSession.Initialize>, IListener<GameSession.Start>, IListener<GameSession.Terminate>
+    [Serializable]
+    internal class FileConfigManager : ConfigManager, IListener<GameSession.Initialize>, IListener<GameSession.Start>, IListener<GameSession.End>
     {
         private static readonly string _configFilePath =
 #if !UNITY_EDITOR
@@ -14,21 +14,20 @@ namespace brazenhead
 
         [SerializeReference] private FileConfigData _configData = new();
 
-        [field: SerializeReference] internal override ConfigSettings Settings { get; private protected set; }
+        [field: SerializeReference] internal override ConfigSettings Settings { get; private protected set; } = new();
 
         void IListener<GameSession.Initialize>.OnEvent(in GameSession.Initialize param)
         {
-            _configData.ReadFromFile(_configFilePath);
-            Settings = new ConfigSettings(_configData);
+            _configData.ReadFromFile(Settings, _configFilePath);
+            Settings.Initialize(_configData);
             _configData.WriteToFile(_configFilePath);
         }
 
         void IListener<GameSession.Start>.OnEvent(in GameSession.Start param)
         {
-            Debug.Log(Settings.MaxFPS.GetValue());
         }
 
-        void IListener<GameSession.Terminate>.OnEvent(in GameSession.Terminate param)
+        void IListener<GameSession.End>.OnEvent(in GameSession.End param)
         {
             _configData.WriteToFile(_configFilePath);
         }

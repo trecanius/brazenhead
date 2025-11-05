@@ -1,12 +1,12 @@
+using System;
 using UnityEngine.InputSystem;
 
 namespace brazenhead
 {
+    [Serializable]
     internal class UnityInputAction<T> : InputAction<T> where T : struct
     {
         private readonly InputAction _action;
-
-        internal override event InputEventHandler StateChanged;
 
         internal UnityInputAction(InputAction action)
         {
@@ -17,24 +17,19 @@ namespace brazenhead
             action.canceled += OnActionCanceled;
         }
 
-        internal T GetValue()
-        {
-            return _action.ReadValue<T>();
-        }
-
         private void OnActionStarted(InputAction.CallbackContext context)
         {
-            StateChanged?.Invoke(State.Started, _action.ReadValue<T>());
+            InvokeStateChanged(State.Started, _action.ReadValue<T>());
         }
 
         private void OnActionPerformed(InputAction.CallbackContext context)
         {
-            StateChanged?.Invoke(State.Performed, _action.ReadValue<T>());
+            InvokeStateChanged(State.Performed, _action.ReadValue<T>());
         }
 
         private void OnActionCanceled(InputAction.CallbackContext context)
         {
-            StateChanged?.Invoke(State.Canceled);
+            InvokeStateChanged(State.Canceled);
         }
     }
 }

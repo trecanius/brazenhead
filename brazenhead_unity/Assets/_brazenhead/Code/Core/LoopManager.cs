@@ -5,16 +5,15 @@ using UnityEngine;
 
 namespace brazenhead
 {
-    [Serializable]
-    public class LoopManager
+    internal partial class LoopManager
     {
-        [SerializeReference] private LoopByType _loopByType = new();
+        private Dictionary<Type, Loop> _loopByType = new();
 
         public Loop<T> Add<T>(in float tickInterval = 0f, in int executionOrder = 0)
         {
             var loop = new Loop<T>(executionOrder, tickInterval);
             _loopByType.Add(typeof(T), loop);
-            _loopByType = new LoopByType(_loopByType.OrderBy(x => x.Value.executionOrder));
+            _loopByType = new(_loopByType.OrderBy(x => x.Value.executionOrder));
             return loop;
         }
 
@@ -28,9 +27,10 @@ namespace brazenhead
                 loop.OnUpdate(deltaTime);
         }
 
+        [Serializable]
         public abstract class Loop
         {
-            internal readonly int executionOrder;
+            internal int executionOrder;
             private float _timestep;
             private float _accumulator;
 
@@ -60,46 +60,48 @@ namespace brazenhead
             private protected abstract void Tick(in float timeStep);
         }
 
+        [Serializable]
         public class Loop<T> : Loop
         {
-            private static readonly Comparison<(int executionOrder, ITickable<T> tickable)> _comparison = (x, y) => x.executionOrder.CompareTo(y.executionOrder);
+            private static readonly Comparison<TickableData> _comparison = (x, y) => x.executionOrder.CompareTo(y.executionOrder);
 
-            private readonly List<(int executionOrder, ITickable<T> tickable)> _tickables = new();
+            [SerializeField] private List<TickableData> _data = new();
 
             internal Loop(in int executionOrder, in float tickInterval) : base(executionOrder, tickInterval) { }
 
             public void AddTickable(in ITickable<T> tickable, in int executionOrder = 0)
             {
-                _tickables.Add((executionOrder, tickable));
-                _tickables.Sort(_comparison);
+                _data.Add(new(executionOrder, tickable));
+                _data.Sort(_comparison);
             }
 
             public void RemoveTickable(in ITickable<T> tickable)
             {
-                for (int i = 0; i < _tickables.Count; i++)
-                    if (_tickables[i].tickable == tickable)
+                for (int i = 0; i < _data.Count; i++)
+                    if (_data[i].tickable == tickable)
                     {
-                        _tickables.RemoveAt(i);
+                        _data.RemoveAt(i);
                         break;
                     }
             }
 
             private protected override void Tick(in float deltaTime)
             {
-                foreach (var (_, tickable) in _tickables)
-                    tickable.OnTick(deltaTime);
-            }
-        }
-
-        [Serializable]
-        private class LoopByType : SerializedReferenceDictionary<Type, Loop>
-        {
-            public LoopByType() : base()
-            {
+                foreach (var data in _data)
+                    data.tickable.OnTick(deltaTime);
             }
 
-            public LoopByType(IEnumerable<KeyValuePair<Type, Loop>> collection) : base(collection)
+            [Serializable]
+            private struct TickableData
             {
+                internal int executionOrder;
+                [SerializeReference] internal ITickable<T> tickable;
+
+                internal TickableData(int executionOrder, ITickable<T> tickable)
+                {
+                    this.executionOrder = executionOrder;
+                    this.tickable = tickable;
+                }
             }
         }
     }

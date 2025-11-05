@@ -1,4 +1,3 @@
-using brazenhead;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,21 +5,27 @@ using UnityEngine.InputSystem;
 namespace brazenhead
 {
     [Serializable]
-    internal class UnityInputManager : InputManager, IListener<GameSession.Start>, IListener<GameSession.Stop>, ITickable<UnityInputManager.ILoop>
+    internal class UnityInputManager : InputManager, IListener<GameSession.Initialize>, IListener<GameSession.Start>, IListener<GameSession.Stop>, ITickable<UnityInputManager.ILoop>
     {
-        private readonly InputSystemActions _actions = new();
+        private InputSystemActions _actions;
 
-        internal override InputActions Actions { get; private protected set; }
+        [field: SerializeReference] internal override InputActions Actions { get; private protected set; }
 
-        void IListener<GameSession.Start>.OnEvent(in GameSession.Start param)
+        void IListener<GameSession.Initialize>.OnEvent(in GameSession.Initialize param)
         {
-            Actions = new UnityInputActions(_actions);
+            Actions = new UnityInputActions();
 
             InputSystem.settings.updateMode = InputSettings.UpdateMode.ProcessEventsManually;
 
             GameSession.Instance.Loops.Add<ILoop>(0f, -10).AddTickable(this, int.MinValue);
+        }
 
+        void IListener<GameSession.Start>.OnEvent(in GameSession.Start param)
+        {
+            _actions = new();
             _actions.Enable();
+
+            (Actions as UnityInputActions).Initialize(_actions);
         }
 
         void IListener<GameSession.Stop>.OnEvent(in GameSession.Stop param)
@@ -31,6 +36,7 @@ namespace brazenhead
 
         void ITickable<ILoop>.OnTick(in float deltaTime)
         {
+            Debug.Log(Time.frameCount + " - InputSystem tick");
             InputSystem.Update();
         }
 

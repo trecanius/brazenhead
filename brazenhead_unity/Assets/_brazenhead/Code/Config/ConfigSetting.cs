@@ -4,43 +4,66 @@ using UnityEngine;
 namespace brazenhead
 {
     [Serializable]
-    internal abstract class ConfigSetting<T> where T : struct
+    internal abstract class ConfigSetting
     {
-        [field: SerializeReference] private protected ConfigData Data { get; private set; }
         private protected string Key { get; private set; }
-        private protected T DefaultValue { get; private set; }
 
-        private T? _cachedValue;
+        internal ConfigSetting(in string key)
+        {
+            Key = key;
+        }
+
+        internal abstract void Initialize(in ConfigData data);
+    }
+
+    [Serializable]
+    internal abstract class ConfigSetting<T> : ConfigSetting
+    {
+        private protected T DefaultValue { get; private set; }
+        [field: SerializeReference] private protected ConfigData Data { get; private set; }
+
+        private bool _hasCachedValue;
+        private T _cachedValue;
 
         internal delegate void SettingEventHandler(in T value);
         internal event SettingEventHandler ValueSet;
 
-        internal ConfigSetting(in ConfigData data, in string key, in T defaultValue)
+        internal ConfigSetting(in string key, in T defaultValue) : base(key)
+        {
+            DefaultValue = defaultValue;
+        }
+
+        internal override void Initialize(in ConfigData data)
         {
             Data = data;
-            Key = key;
-            DefaultValue = defaultValue;
 
-            if (data.TryGetValue<T>(key, out var value))
-                _cachedValue = value;
+            if (TryGetTypedValue(out var value))
+                SetCachedValue(value);
             else
-                SetValue(defaultValue);
+                SetValue(DefaultValue);
         }
 
         internal T GetValue()
         {
-            if (_cachedValue.HasValue)
-                return _cachedValue.Value;
-            return (T)(_cachedValue = GetTypedValue());
+            if (!_hasCachedValue)
+                SetCachedValue(GetTypedValue());
+            return _cachedValue;
         }
 
         internal void SetValue(in T value)
         {
-            _cachedValue = value;
+            SetCachedValue(value);
             SetTypedValue(value);
             ValueSet?.Invoke(value);
         }
 
+        private void SetCachedValue(in T value)
+        {
+            _hasCachedValue = true;
+            _cachedValue = value;
+        }
+
+        private protected abstract bool TryGetTypedValue(out T value);
         private protected abstract T GetTypedValue();
         private protected abstract void SetTypedValue(T value);
     }
@@ -48,54 +71,40 @@ namespace brazenhead
     [Serializable]
     internal class BoolConfigSetting : ConfigSetting<bool>
     {
-        internal BoolConfigSetting(in ConfigData data, in string key, in bool defaultValue) : base(data, key, defaultValue)
-        {
-        }
+        internal BoolConfigSetting(in string key, in bool defaultValue) : base(key, defaultValue) { }
 
-        private protected override bool GetTypedValue()
-        {
-            return Data.GetValue(Key, DefaultValue);
-        }
-
-        private protected override void SetTypedValue(bool value)
-        {
-            Data.SetValue(Key, value);
-        }
+        private protected override bool TryGetTypedValue(out bool value) => Data.TryGetValue(Key, out value);
+        private protected override bool GetTypedValue() => Data.GetValue(Key, DefaultValue);
+        private protected override void SetTypedValue(bool value) => Data.SetValue(Key, value);
     }
 
     [Serializable]
     internal class IntConfigSetting : ConfigSetting<int>
     {
-        internal IntConfigSetting(in ConfigData data, in string key, in int defaultValue) : base(data, key, defaultValue)
-        {
-        }
+        internal IntConfigSetting(in string key, in int defaultValue) : base(key, defaultValue) { }
 
-        private protected override int GetTypedValue()
-        {
-            return Data.GetValue(Key, DefaultValue);
-        }
-
-        private protected override void SetTypedValue(int value)
-        {
-            Data.SetValue(Key, value);
-        }
+        private protected override bool TryGetTypedValue(out int value) => Data.TryGetValue(Key, out value);
+        private protected override int GetTypedValue() => Data.GetValue(Key, DefaultValue);
+        private protected override void SetTypedValue(int value) => Data.SetValue(Key, value);
     }
 
     [Serializable]
     internal class FloatConfigSetting : ConfigSetting<float>
     {
-        internal FloatConfigSetting(in ConfigData data, in string key, in float defaultValue) : base(data, key, defaultValue)
-        {
-        }
+        internal FloatConfigSetting(in string key, in float defaultValue) : base(key, defaultValue) { }
 
-        private protected override float GetTypedValue()
-        {
-            return Data.GetValue(Key, DefaultValue);
-        }
+        private protected override bool TryGetTypedValue(out float value) => Data.TryGetValue(Key, out value);
+        private protected override float GetTypedValue() => Data.GetValue(Key, DefaultValue);
+        private protected override void SetTypedValue(float value) => Data.SetValue(Key, value);
+    }
 
-        private protected override void SetTypedValue(float value)
-        {
-            Data.SetValue(Key, value);
-        }
+    [Serializable]
+    internal class StringConfigSetting : ConfigSetting<string>
+    {
+        internal StringConfigSetting(in string key, in string defaultValue) : base(key, defaultValue) { }
+
+        private protected override bool TryGetTypedValue(out string value) => Data.TryGetValue(Key, out value);
+        private protected override string GetTypedValue() => Data.GetValue(Key, DefaultValue);
+        private protected override void SetTypedValue(string value) => Data.SetValue(Key, value);
     }
 }

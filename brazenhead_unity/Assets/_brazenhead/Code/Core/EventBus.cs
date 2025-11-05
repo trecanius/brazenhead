@@ -5,10 +5,9 @@ using UnityEngine;
 
 namespace brazenhead
 {
-    [Serializable]
-    public class EventBus
+    internal partial class EventBus
     {
-        [SerializeReference] private ListenersByType _listenersByType = new();
+        private readonly Dictionary<Type, List<object>> _listenersByType = new();
 
         public void Invoke<T>() where T : IEvent, new() => Invoke(new T());
 
@@ -33,11 +32,6 @@ namespace brazenhead
         {
             if (_listenersByType.TryGetValue(typeof(T), out var listeners))
                 listeners.Remove(listener);
-        }
-
-        [Serializable]
-        private class ListenersByType : SerializedReferenceDictionary<Type, List<object>>
-        {
         }
     }
 }

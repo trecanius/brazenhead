@@ -6,9 +6,9 @@ namespace brazenhead
 {
     internal class GameStarter : MonoBehaviour
     {
-        private static GameSession _gameSession;
+        private GameSession _gameSession;
 
-        private async void Start()
+        private async void Awake()
         {
             if (_gameSession != null)
             {
@@ -20,7 +20,7 @@ namespace brazenhead
 
             _gameSession = ScriptableObject.CreateInstance<GameSession>();
             _gameSession.Locator.Bind<ConfigManager>().To(new FileConfigManager());
-            //_gameSession.Locator.Bind<InputManager>().To(new UnityInputManager());
+            _gameSession.Locator.Bind<InputManager>().To(new UnityInputManager());
             //GameSession.Instance.Locator.Bind<GraphicsManager>().To(new());
             _gameSession.Locator.Bind<SceneManager>().To(new());
             //GameSession.Instance.Locator.Bind<PhysicsManager>().To(new());
@@ -42,12 +42,31 @@ namespace brazenhead
                 // load main scene
                 await _gameSession.Locator.Resolve<SceneManager>().LoadScene(catalog => catalog.Addressable.Scenes.Main);
 
-            _gameSession.EventBus.Invoke<GameSession.Start>();
+            Application.targetFrameRate = 60;
+        }
 
-            //// instantiate player
-            //var playerSceneObj = GameSession.Instance.Locator.Resolve<SceneManager>().Instantiate(catalog => catalog.Prefab.PlayerEntity);
-            //var player = new PlayerEntity(playerSceneObj);
-            //GameSession.Instance.Locator.Bind<PlayerEntity>().To(player);
+        private void OnEnable()
+        {
+            Application.focusChanged += OnApplicationFocusChanged;
+
+            _gameSession.EventBus.Invoke<GameSession.Start>();
+        }
+
+        private void OnDisable()
+        {
+            Application.focusChanged -= OnApplicationFocusChanged;
+
+            _gameSession.EventBus.Invoke<GameSession.Stop>();
+        }
+
+        private void OnDestroy()
+        {
+            _gameSession.EventBus.Invoke<GameSession.End>();
+        }
+
+        private void OnApplicationFocusChanged(bool hasFocus)
+        {
+            _gameSession.EventBus.Invoke<GameSession.FocusChange>(new(hasFocus));
         }
     }
 }

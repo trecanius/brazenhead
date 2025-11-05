@@ -1,37 +1,14 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace brazenhead
 {
-    [Serializable]
-    public class Locator : ISerializationCallbackReceiver
+    internal partial class Locator
     {
         private static readonly string _defaultKey = "";
 
-        private readonly Dictionary<Type, ResolveMap> _resolveMap = new();
-
-        private List<SerializedType> _resolveMapKeys = new();
-        [SerializeReference] private List<ResolveMap> _resolveMapValues = new();
-
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-            _resolveMapKeys.Clear();
-            _resolveMapValues.Clear();
-
-            foreach (var (key, value) in _resolveMap)
-            {
-                _resolveMapKeys.Add(new SerializedType(key));
-                _resolveMapValues.Add(value);
-            }
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-            for (int i = 0; i < _resolveMapKeys.Count; i++)
-                _resolveMap.Add(_resolveMapKeys[i], _resolveMapValues[i]);
-        }
+        private readonly Dictionary<Type, Dictionary<string, object>> _resolveMap = new();
 
         public Binding<T> Bind<T>(in string key = null) where T : class
         {
@@ -81,7 +58,7 @@ namespace brazenhead
         {
             if (!_resolveMap.TryGetValue(resolveType, out var instanceByKey))
             {
-                instanceByKey = new();
+                instanceByKey = new(1);
                 _resolveMap.Add(resolveType, instanceByKey);
             }
             instanceByKey[key] = instance;
@@ -109,8 +86,5 @@ namespace brazenhead
                 return instance;
             }
         }
-
-        [Serializable]
-        private class ResolveMap : SerializedReferenceDictionary<string, object> { }
     }
 }

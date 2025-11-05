@@ -10,13 +10,9 @@ namespace brazenhead
         [SerializeReference] private List<TKey> _keys = new();
         [SerializeReference] private List<TValue> _values = new();
 
-        public SerializedReferenceDictionary()
-        {
-        }
+        public SerializedReferenceDictionary() : base() { }
 
-        public SerializedReferenceDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) : base(collection)
-        {
-        }
+        public SerializedReferenceDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) : base(collection) { }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
